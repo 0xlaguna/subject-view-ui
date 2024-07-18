@@ -13,13 +13,13 @@ export function MainNav({
       {...props}
     >
       <Link
-        href="/dash/subjects"
+        href="/dash/overview"
         className="text-sm font-medium transition-colors hover:text-primary"
       >
         Overview
       </Link>
       <Link
-        href="/dash/customers"
+        href="/dash/subjects"
         className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
       >
         Subjects

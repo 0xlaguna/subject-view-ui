@@ -14,7 +14,7 @@ interface Session {
 
 const useLogin = () => {
   const {isError, isPending, isSuccess, mutate} = useMutation<Session, Error, LoginData, unknown>({
-    mutationFn: (data: LoginData) => poster<LoginData, Session>('/account/login', data)
+    mutationFn: (data: LoginData) => poster<LoginData, Session>("/account/login", data)
   });
 
   return {
