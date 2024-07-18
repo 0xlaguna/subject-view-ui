@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
+import { setCookie } from "cookies-next"
+
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -26,6 +28,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import { Icons } from "@/components/icons"
+import useLogin from "@/hooks/useLogin"
 
 const FormSchema = z.object({
   email: z.string().email(),
@@ -35,7 +38,7 @@ const FormSchema = z.object({
 interface UserLoginFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function UserLoginForm({ className, ...props }: UserLoginFormProps) {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const { loginPending, loginMutate } = useLogin()
 
   const router = useRouter()
 
@@ -48,15 +51,11 @@ export function UserLoginForm({ className, ...props }: UserLoginFormProps) {
   })
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log({ data })
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">Hi2</pre>
-      ),
-    })
-
-    router.push("/dash")
+    loginMutate(data, {onSuccess: (session) => {
+      setCookie("x-session", session);
+      toast({description: "Logged in successfully"})
+      router.push("/dash")
+    }})
   }
 
   return (
@@ -92,7 +91,7 @@ export function UserLoginForm({ className, ...props }: UserLoginFormProps) {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input placeholder="" {...field} />
+                      <Input placeholder="" {...field} type="password" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -101,8 +100,8 @@ export function UserLoginForm({ className, ...props }: UserLoginFormProps) {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" disabled={isLoading} className="w-full">
-              {isLoading && (
+            <Button type="submit" disabled={loginPending} className="w-full">
+              {loginPending && (
                 <Icons.spinner className="mr-2 size-4 animate-spin" />
               )}
               Sign in

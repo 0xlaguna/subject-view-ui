@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/toaster"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
 import { ThemeProvider } from "@/components/theme-provider"
+import { RQProvider } from "@/config/react-query"
 
 export const metadata: Metadata = {
   title: {
@@ -45,13 +46,15 @@ export default function RootLayout({ children }: RootLayoutProps) {
           )}
         >
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <div vaul-drawer-wrapper="">
-              <div className="bg-background relative flex min-h-screen flex-col">
-                {children}
+            <RQProvider>
+              <div vaul-drawer-wrapper="">
+                <div className="bg-background relative flex min-h-screen flex-col">
+                  {children}
+                </div>
+                <Toaster />
               </div>
-              <Toaster />
-            </div>
-            <TailwindIndicator />
+              <TailwindIndicator />
+            </RQProvider>
           </ThemeProvider>
         </body>
       </html>
