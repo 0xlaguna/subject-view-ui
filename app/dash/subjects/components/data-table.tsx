@@ -42,14 +42,23 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   isLoading: boolean
-  updateQueryParams: <K extends keyof DataTableFilters>(key: K, value: DataTableFilters[K]) => void
+  updateQueryParams: (updates: Array<{
+      key: keyof DataTableFilters;
+      value: DataTableFilters[keyof DataTableFilters];
+    }>) => void
+  pageSize: number
+  pageIndex: number
+  pageCount: number
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   isLoading,
-  updateQueryParams
+  updateQueryParams,
+  pageSize,
+  pageIndex,
+  pageCount
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -67,8 +76,11 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       rowSelection,
       columnFilters,
+      pagination: { pageSize, pageIndex }
     },
     enableRowSelection: true,
+    manualPagination: true,
+    pageCount: pageCount,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -79,9 +91,19 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    onPaginationChange: (updater) => {
+      if (typeof updater !== "function") return;
+
+      const newPageInfo = updater(table.getState().pagination);
+
+      updateQueryParams([
+        {key: "per_page", value: newPageInfo.pageSize},
+        {key: "page", value: newPageInfo.pageIndex + 1}
+      ])
+    }
   })
 
-  const toolbarOnSearch = (value: string | undefined) => updateQueryParams("search", value)
+  const toolbarOnSearch = (value: string | undefined) => updateQueryParams([{key: "search", value: value}])
 
   return (
     <div className="space-y-4">

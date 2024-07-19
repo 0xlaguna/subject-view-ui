@@ -20,15 +20,21 @@ export default function Page() {
 
   const { subjectListLoading, subjectListData, refetchSubjectList } = useSubjectList(queryParams)
 
-  const updateQueryParam = <K extends keyof DataTableFilters>(key: K, value: DataTableFilters[K]) => {
+  const updateQueryParam = (
+    updates: Array<{ key: keyof DataTableFilters; value: DataTableFilters[keyof DataTableFilters] }>
+  ) => {
     setQueryParams((prevParams) => {
-      const newParams = { ...prevParams, [key]: value };
+      const newParams = { ...prevParams };
+      updates.forEach(({ key, value }) => {
+        //@ts-ignore
+        newParams[key] = value;
+      });
       if (JSON.stringify(newParams) !== JSON.stringify(prevParams)) {
         return newParams;
       }
       return prevParams;
     });
-  }
+  };
 
   return (
     <div className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex">
@@ -45,6 +51,9 @@ export default function Page() {
         columns={getColumns({refetch: refetchSubjectList})}
         isLoading={subjectListLoading}
         updateQueryParams={updateQueryParam}
+        pageSize={queryParams.per_page || 10}
+        pageIndex={queryParams.page - 1 || 0}
+        pageCount={subjectListData?.pages || 1}
       />
     </div>
   )
