@@ -30,16 +30,26 @@ import { LoadingSpinner } from "@/components/ui/spinner"
 import { DataTablePagination } from "./data-table-pagination"
 import { DataTableToolbar } from "./data-table-toolbar"
 
+export interface DataTableFilters {
+  page: number
+  per_page: number
+  search: string | undefined
+  sort_by: string | undefined
+  order: string | undefined
+}
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   isLoading: boolean
+  updateQueryParams: <K extends keyof DataTableFilters>(key: K, value: DataTableFilters[K]) => void
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  isLoading
+  isLoading,
+  updateQueryParams
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -71,9 +81,11 @@ export function DataTable<TData, TValue>({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
+  const toolbarOnSearch = (value: string | undefined) => updateQueryParams("search", value)
+
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table} onSearch={toolbarOnSearch} />
       <div className="rounded-md border">
         {isLoading ? (
           <div className="flex h-24 items-center justify-center">
