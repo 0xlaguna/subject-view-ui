@@ -1,6 +1,6 @@
 "use client"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -13,25 +13,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import { deleteCookie } from "cookies-next"
-
-import { useRouter } from "next/navigation"
+import LogOut from "./log-out"
 
 export function UserNav() {
-  const router = useRouter()
-
-  function onLogout() {
-    deleteCookie("x-session")
-
-    router.push("/auth")
-  }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative size-8 rounded-full">
           <Avatar className="size-8">
-            <AvatarImage src="/avatars/01.png" alt="@subjectview" />
             <AvatarFallback>ML</AvatarFallback>
           </Avatar>
         </Button>
@@ -61,10 +51,7 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={onLogout}>
-          Log out
-          <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-        </DropdownMenuItem>
+        <LogOut />
       </DropdownMenuContent>
     </DropdownMenu>
   )

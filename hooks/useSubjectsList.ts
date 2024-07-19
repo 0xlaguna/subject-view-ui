@@ -2,8 +2,8 @@
 
 import { fetcher } from "@/lib/api/apiClient"
 import { useQuery } from "@tanstack/react-query"
-
-import { getCookie } from "cookies-next"
+import { useSession } from 'next-auth/react';
+import { useEffect } from "react";
 
 interface SubjectListData {
   list: Subject[];
@@ -28,16 +28,19 @@ interface QueryParams {
 }
 
 const useSubjectList = (params: QueryParams) => {
-  const xSession = getCookie("x-session")
-  const session = JSON.parse(xSession as string)
+  const session = useSession()
 
+  useEffect(() => {}, [session]);
+
+  const token = session.data?.accessToken
   const headers = {
-    "x-session-token": session.token
-  }
+    "x-session-token": token
+  };
 
   const { isError, isLoading, isSuccess, data } = useQuery<SubjectListData, Error>({
-    queryKey: ["subject-list"],
-    queryFn: () => fetcher<SubjectListData>("/subject/", params, headers)
+    queryKey: ["subject-list", params],
+    queryFn: () => fetcher<SubjectListData>("/subject/", params, headers),
+    enabled: !!token
   })
 
   return {

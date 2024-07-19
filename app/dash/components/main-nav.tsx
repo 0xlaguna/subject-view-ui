@@ -1,4 +1,8 @@
+"use client"
+
 import Link from "next/link"
+
+import { usePathname } from "next/navigation"
 
 import { cn } from "@/lib/utils"
 
@@ -6,7 +10,13 @@ export function MainNav({
   className,
   ...props
 }: React.HTMLAttributes<HTMLElement>) {
-  console.log({ className })
+
+  const pathname = usePathname()
+
+  console.log(pathname)
+
+  const isActive = (path: string) => pathname === path ? "text-primary" : "text-muted-foreground"
+
   return (
     <nav
       className={cn("flex items-center space-x-4 lg:space-x-6", className)}
@@ -14,19 +24,19 @@ export function MainNav({
     >
       <Link
         href="/dash/overview"
-        className="text-sm font-medium transition-colors hover:text-primary"
+        className={`hover:text-primary text-sm font-medium transition-colors ${isActive('/dash/overview')}`}
       >
         Overview
       </Link>
       <Link
         href="/dash/subjects"
-        className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+        className={`hover:text-primary text-sm font-medium transition-colors ${isActive('/dash/subjects')}`}
       >
         Subjects
       </Link>
       <Link
-        href="/dash/home"
-        className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+        href="/dash/settings"
+        className={`hover:text-primary text-sm font-medium transition-colors ${isActive('/dash/settings')}`}
       >
         Settings
       </Link>

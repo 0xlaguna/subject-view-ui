@@ -2,6 +2,10 @@ import axiosInstance from "@/config/axios/client-instance"
 import { AxiosResponse } from "axios";
 
 export const fetcher = async <T>(url: string, params: any, headers: any): Promise<T> => {
+  if (!headers["x-session-token"]) {
+    throw new Error("Session token is missing");
+  }
+
   const response = await axiosInstance.get<T>(url, { params: params, headers });
   return response.data;
 };

@@ -76,7 +76,7 @@ export function DataTable<TData, TValue>({
       <DataTableToolbar table={table} />
       <div className="rounded-md border">
         {isLoading ? (
-          <div className="flex justify-center items-center h-24">
+          <div className="flex h-24 items-center justify-center">
             <LoadingSpinner />
           </div>
         ) : (

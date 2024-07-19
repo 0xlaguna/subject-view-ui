@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
 import { ThemeProvider } from "@/components/theme-provider"
 import { RQProvider } from "@/config/react-query"
+import { NextAuthProvider } from "./auth-provider"
 
 export const metadata: Metadata = {
   title: {
@@ -45,17 +46,19 @@ export default function RootLayout({ children }: RootLayoutProps) {
             fontSans.variable
           )}
         >
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <RQProvider>
-              <div vaul-drawer-wrapper="">
-                <div className="bg-background relative flex min-h-screen flex-col">
-                  {children}
-                </div>
-                <Toaster />
-              </div>
-              <TailwindIndicator />
-            </RQProvider>
-          </ThemeProvider>
+          <NextAuthProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                <RQProvider>
+                  <div vaul-drawer-wrapper="">
+                    <div className="bg-background relative flex min-h-screen flex-col">
+                      {children}
+                    </div>
+                    <Toaster />
+                  </div>
+                  <TailwindIndicator />
+                </RQProvider>
+            </ThemeProvider>
+          </NextAuthProvider>
         </body>
       </html>
     </>
