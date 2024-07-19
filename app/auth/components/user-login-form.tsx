@@ -1,12 +1,12 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
+import { useFormState } from "react-dom"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { setCookie } from "cookies-next"
+import { authenticate } from '@/lib/actions';
 
 import { Button } from "@/components/ui/button"
 import {
@@ -26,9 +26,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { toast } from "@/components/ui/use-toast"
 import { Icons } from "@/components/icons"
-import useLogin from "@/hooks/useLogin"
 
 const FormSchema = z.object({
   email: z.string().email(),
@@ -38,9 +36,10 @@ const FormSchema = z.object({
 interface UserLoginFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function UserLoginForm({ className, ...props }: UserLoginFormProps) {
-  const { loginPending, loginMutate } = useLogin()
-
-  const router = useRouter()
+  const [errorMessage, formAction, isPending] = useFormState(
+    authenticate,
+    undefined,
+  );
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -50,17 +49,9 @@ export function UserLoginForm({ className, ...props }: UserLoginFormProps) {
     },
   })
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    loginMutate(data, {onSuccess: (session) => {
-      setCookie("x-session", session);
-      toast({description: "Logged in successfully"})
-      router.push("/dash")
-    }})
-  }
-
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form action={formAction}>
         <Card className="w-full max-w-sm">
           <CardHeader>
             <CardTitle className="text-2xl">Login</CardTitle>
@@ -100,8 +91,8 @@ export function UserLoginForm({ className, ...props }: UserLoginFormProps) {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" disabled={loginPending} className="w-full">
-              {loginPending && (
+            <Button type="submit" disabled={isPending} className="w-full">
+              {isPending && (
                 <Icons.spinner className="mr-2 size-4 animate-spin" />
               )}
               Sign in
