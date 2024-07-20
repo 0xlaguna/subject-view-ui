@@ -1,19 +1,40 @@
 "use client"
 
-import { columns } from "./components/columns"
-import { DataTable } from "./components/data-table"
+import { useState} from "react";
+
+import { getColumns } from "./components/columns"
+import { DataTable, DataTableFilters } from "./components/data-table"
 
 import useSubjectList from "@/hooks/useSubjectsList"
 
 
 export default function Page() {
-  const { subjectListLoading, subjectListData } = useSubjectList({
+
+  const [queryParams, setQueryParams] = useState<DataTableFilters>({
     page: 1,
     per_page: 10,
     search: undefined,
     sort_by: undefined,
     order: undefined
   })
+
+  const { subjectListLoading, subjectListData, refetchSubjectList } = useSubjectList(queryParams)
+
+  const updateQueryParam = (
+    updates: Array<{ key: keyof DataTableFilters; value: DataTableFilters[keyof DataTableFilters] }>
+  ) => {
+    setQueryParams((prevParams) => {
+      const newParams = { ...prevParams };
+      updates.forEach(({ key, value }) => {
+        //@ts-ignore
+        newParams[key] = value;
+      });
+      if (JSON.stringify(newParams) !== JSON.stringify(prevParams)) {
+        return newParams;
+      }
+      return prevParams;
+    });
+  };
 
   return (
     <div className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex">
@@ -25,7 +46,16 @@ export default function Page() {
           </p>
         </div>
       </div>
-      <DataTable data={subjectListData?.list || []} columns={columns} isLoading={subjectListLoading} />
+      <DataTable
+        data={subjectListData?.list || []}
+        columns={getColumns({refetch: refetchSubjectList})}
+        isLoading={subjectListLoading}
+        updateQueryParams={updateQueryParam}
+        pageSize={queryParams.per_page || 10}
+        pageIndex={queryParams.page - 1 || 0}
+        pageCount={subjectListData?.pages || 1}
+        refetch={refetchSubjectList}
+      />
     </div>
   )
 }

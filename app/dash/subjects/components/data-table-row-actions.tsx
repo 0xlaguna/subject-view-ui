@@ -5,6 +5,18 @@ import { Row } from "@tanstack/react-table"
 
 import { Button } from "@/components/ui/button"
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -20,15 +32,45 @@ import {
 
 import { statuses } from "../data/data"
 import { subjectSchema } from "../data/schema"
+import { useQueryClient } from "@tanstack/react-query"
+import useDeleteSubject from "@/hooks/useSubjectDelete"
+import { useToast } from "@/components/ui/use-toast"
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>
+  refetch: () => void
 }
 
 export function DataTableRowActions<TData>({
   row,
+  refetch
 }: DataTableRowActionsProps<TData>) {
+  const { toast } = useToast()
   const subject = subjectSchema.parse(row.original)
+
+  const { destroySubject } = useDeleteSubject({id: subject.id})
+  const queryClient = useQueryClient()
+
+  const onDelete = () => {
+    queryClient.cancelQueries({queryKey: ["subject-list"]})
+    destroySubject()
+
+    //@ts-ignore
+    queryClient.setQueryData(["subject-list"], (oldData: { list } | undefined) => {
+      if (!oldData) return oldData
+      return { //@ts-ignore
+        list: oldData.list.filter(subject => subject.id !== subject.id)
+      }
+    })
+
+    queryClient.invalidateQueries({queryKey: ["subject-list"]})
+    refetch()
+
+    toast({
+      variant: "destructive",
+      description: `Subject #${subject.id} deleted successfully.`,
+    })
+  }
 
   return (
     <DropdownMenu>
@@ -43,8 +85,6 @@ export function DataTableRowActions<TData>({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
         <DropdownMenuItem>Edit</DropdownMenuItem>
-        <DropdownMenuItem>Make a copy</DropdownMenuItem>
-        <DropdownMenuItem>Favorite</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
@@ -59,10 +99,29 @@ export function DataTableRowActions<TData>({
           </DropdownMenuSubContent>
         </DropdownMenuSub>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          Delete
-          <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-        </DropdownMenuItem>
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+              Delete
+              <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the
+                subject and remove the data from our servers.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={onDelete}>Continue</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
       </DropdownMenuContent>
     </DropdownMenu>
   )

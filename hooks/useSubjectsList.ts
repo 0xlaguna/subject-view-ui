@@ -37,7 +37,7 @@ const useSubjectList = (params: QueryParams) => {
     "x-session-token": token
   };
 
-  const { isError, isLoading, isSuccess, data } = useQuery<SubjectListData, Error>({
+  const { isError, isLoading, isSuccess, data, refetch } = useQuery<SubjectListData, Error>({
     queryKey: ["subject-list", params],
     queryFn: () => fetcher<SubjectListData>("/subject/", params, headers),
     enabled: !!token
@@ -47,7 +47,8 @@ const useSubjectList = (params: QueryParams) => {
     subjectListError: isError,
     subjectListLoading: isLoading,
     subjectListSuccess: isSuccess,
-    subjectListData: data
+    subjectListData: data,
+    refetchSubjectList: refetch
   }
 }
 

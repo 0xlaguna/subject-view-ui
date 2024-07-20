@@ -13,8 +13,6 @@ export function MainNav({
 
   const pathname = usePathname()
 
-  console.log(pathname)
-
   const isActive = (path: string) => pathname === path ? "text-primary" : "text-muted-foreground"
 
   return (

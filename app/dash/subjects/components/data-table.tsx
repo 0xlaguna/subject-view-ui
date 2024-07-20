@@ -30,16 +30,37 @@ import { LoadingSpinner } from "@/components/ui/spinner"
 import { DataTablePagination } from "./data-table-pagination"
 import { DataTableToolbar } from "./data-table-toolbar"
 
+export interface DataTableFilters {
+  page: number
+  per_page: number
+  search: string | undefined
+  sort_by: string | undefined
+  order: string | undefined
+}
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   isLoading: boolean
+  updateQueryParams: (updates: Array<{
+      key: keyof DataTableFilters;
+      value: DataTableFilters[keyof DataTableFilters];
+    }>) => void
+  pageSize: number
+  pageIndex: number
+  pageCount: number
+  refetch: () => void
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  isLoading
+  isLoading,
+  updateQueryParams,
+  pageSize,
+  pageIndex,
+  pageCount,
+  refetch
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -57,8 +78,11 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       rowSelection,
       columnFilters,
+      pagination: { pageSize, pageIndex }
     },
     enableRowSelection: true,
+    manualPagination: true,
+    pageCount: pageCount,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -69,11 +93,23 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    onPaginationChange: (updater) => {
+      if (typeof updater !== "function") return;
+
+      const newPageInfo = updater(table.getState().pagination);
+
+      updateQueryParams([
+        {key: "per_page", value: newPageInfo.pageSize},
+        {key: "page", value: newPageInfo.pageIndex + 1}
+      ])
+    }
   })
+
+  const toolbarOnSearch = (value: string | undefined) => updateQueryParams([{key: "search", value: value}])
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table} onSearch={toolbarOnSearch} refetch={refetch} />
       <div className="rounded-md border">
         {isLoading ? (
           <div className="flex h-24 items-center justify-center">
