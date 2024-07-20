@@ -16,11 +16,13 @@ import useDebounce from "@/hooks/useDebounce"
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
   onSearch: (value: string | undefined) => void
+  refetch: () => void
 }
 
 export function DataTableToolbar<TData>({
   table,
-  onSearch
+  onSearch,
+  refetch
 }: DataTableToolbarProps<TData>) {
   const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined);
   const debouncedSearchTerm = useDebounce<string | undefined>(searchTerm, 800);
@@ -65,7 +67,7 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
-      <DataTableViewOptions table={table} />
+      <DataTableViewOptions table={table} refetch={refetch}/>
     </div>
   )
 }

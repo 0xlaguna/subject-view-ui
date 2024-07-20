@@ -49,6 +49,7 @@ interface DataTableProps<TData, TValue> {
   pageSize: number
   pageIndex: number
   pageCount: number
+  refetch: () => void
 }
 
 export function DataTable<TData, TValue>({
@@ -58,7 +59,8 @@ export function DataTable<TData, TValue>({
   updateQueryParams,
   pageSize,
   pageIndex,
-  pageCount
+  pageCount,
+  refetch
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -107,7 +109,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} onSearch={toolbarOnSearch} />
+      <DataTableToolbar table={table} onSearch={toolbarOnSearch} refetch={refetch} />
       <div className="rounded-md border">
         {isLoading ? (
           <div className="flex h-24 items-center justify-center">

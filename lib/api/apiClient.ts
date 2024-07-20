@@ -15,7 +15,7 @@ export const poster = async <T, U>(url: string, data: T, headers: any): Promise<
     throw new Error("Session token is missing");
   }
 
-  const response = await axiosInstance.post<T, AxiosResponse<U>>(url, data);
+  const response = await axiosInstance.post<T, AxiosResponse<U>>(url, data, { headers });
   return response.data;
 }
 

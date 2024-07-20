@@ -54,6 +54,7 @@ export default function Page() {
         pageSize={queryParams.per_page || 10}
         pageIndex={queryParams.page - 1 || 0}
         pageCount={subjectListData?.pages || 1}
+        refetch={refetchSubjectList}
       />
     </div>
   )
