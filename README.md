@@ -2,6 +2,7 @@
 This project uses the lastest LTS version of Nodejs and Pnpm -> https://pnpm.io/
 
 ```bash
+pnpm install
 pnpm dev
 ```
 ## Env file
