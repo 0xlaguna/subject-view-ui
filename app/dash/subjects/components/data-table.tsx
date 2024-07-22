@@ -84,7 +84,23 @@ export function DataTable<TData, TValue>({
     manualPagination: true,
     pageCount: pageCount,
     onRowSelectionChange: setRowSelection,
-    onSortingChange: setSorting,
+    onSortingChange: (sortingUpdater) => {
+      if (typeof sortingUpdater !== "function") return;
+
+      const sortingInfo = sortingUpdater(table.getState().sorting);
+      if (sortingInfo.length === 0) {
+        return;
+      }
+
+      const sort = sortingInfo[0]
+      const sortBy = sort.id
+      const order = sort.desc ? "desc" : "asc";
+
+      updateQueryParams([
+        {key: "sort_by", value: sortBy},
+        {key: "order", value: order}
+      ])
+    },
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
@@ -102,7 +118,7 @@ export function DataTable<TData, TValue>({
         {key: "per_page", value: newPageInfo.pageSize},
         {key: "page", value: newPageInfo.pageIndex + 1}
       ])
-    }
+    },
   })
 
   const toolbarOnSearch = (value: string | undefined) => updateQueryParams([{key: "search", value: value}])
