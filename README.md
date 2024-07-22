@@ -17,3 +17,6 @@ https://subjectview-ui-production.up.railway.app/auth
 Default user credentials:
 email: admin@subjectview.io
 password: laguna
+
+# issues
+if you log in and the page does not redirect to the dashboard please reload the app 
