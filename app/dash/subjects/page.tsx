@@ -55,6 +55,8 @@ export default function Page() {
         pageIndex={queryParams.page - 1 || 0}
         pageCount={subjectListData?.pages || 1}
         refetch={refetchSubjectList}
+        sortDesc={queryParams.order}
+        sortId={queryParams.sort_by}
       />
     </div>
   )

@@ -50,6 +50,8 @@ interface DataTableProps<TData, TValue> {
   pageIndex: number
   pageCount: number
   refetch: () => void
+  sortId?: string,
+  sortDesc?: string
 }
 
 export function DataTable<TData, TValue>({
@@ -60,7 +62,9 @@ export function DataTable<TData, TValue>({
   pageSize,
   pageIndex,
   pageCount,
-  refetch
+  refetch,
+  sortDesc,
+  sortId
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -68,21 +72,29 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   )
-  const [sorting, setSorting] = React.useState<SortingState>([])
+
+  const sorting: SortingState = []
+
+  if (typeof sortId !== null && sortDesc !== null) {
+    const desc = sortDesc === "desc"
+
+    sorting.push({ id: sortId!!, desc: desc })
+  }
 
   const table = useReactTable({
     data,
     columns,
     state: {
-      sorting,
+      sorting: sorting,
       columnVisibility,
       rowSelection,
       columnFilters,
-      pagination: { pageSize, pageIndex }
+      pagination: { pageSize, pageIndex },
     },
     enableRowSelection: true,
     manualPagination: true,
     pageCount: pageCount,
+    manualSorting: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: (sortingUpdater) => {
       if (typeof sortingUpdater !== "function") return;
